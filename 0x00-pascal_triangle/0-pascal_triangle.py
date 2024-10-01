@@ -2,19 +2,19 @@
 
 
 def pascal_triangle(n):
-    """Generates Pascal's triangle up to the specified number of rows using
-       recursion.
     """
-    if n == 0:
-        return []
-    elif n == 1:
-        return [[1]]
-    else:
-        prev_triangle = pascal_triangle(n-1)
-        last_row = prev_triangle[-1]
-        new_row = [1]
-        for idx in range(len(last_row)-1):
-            new_row.append(last_row[idx] + last_row[idx+1])
-        new_row.append(1)
-        prev_triangle.append(new_row)
-    return prev_triangle
+    Generate the first n rows of the Pascal's triangle.
+
+    Args:
+        n (int): The number of rows to generate in the Pascal's triangle.
+
+    Returns:
+        list: A list of lists representing the Pascal's triangle.
+    """
+    triangle = []
+    for row_num in range(n):
+        row = [1] * (row_num + 1)
+        row[1:-1] = [triangle[row_num - 1][j - 1] +
+                     triangle[row_num - 1][j] for j in range(1, row_num)]
+        triangle.append(row)
+    return triangle
