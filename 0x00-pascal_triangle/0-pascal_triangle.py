@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 """Module to define pascal's triangle"""
 
 
