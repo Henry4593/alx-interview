@@ -12,6 +12,8 @@ def pascal_triangle(n):
         list: A list of lists representing the Pascal's triangle.
     """
     triangle = []
+    if type(n) is not int or n <= 0:
+        return triangle
     for row_num in range(n):
         row = [1] * (row_num + 1)
         row[1:-1] = [triangle[row_num - 1][j - 1] +
