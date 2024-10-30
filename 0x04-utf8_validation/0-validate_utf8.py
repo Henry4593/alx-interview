@@ -4,53 +4,61 @@
 
 
 def validUTF8(data):
-    """Checks if a list of integers are valid UTF-8 codepoints.
-
-    Args:
-        data (list): A list of integers representing bytes of data.
-
-    Returns:
-        bool: True if the data is a valid UTF-8 encoding, False otherwise.
+    """
+        Args:
+            data (list): List of integers representing bytes.
+        Returns:
+            bool: True if the data is valid UTF-8, False otherwise.
     """
     skip = 0
-    for byte in data:
-        # Validate byte type and range
-        if not isinstance(byte, int) or byte < 0 or byte > 0x10FFFF:
-            return False
-
-        # Single-byte character (ASCII)
-        if byte <= 0x7F:
-            skip = 0
-            continue
-
-        # Check for valid continuation bytes
+    n = len(data)
+    for i in range(n):
         if skip > 0:
-            if (byte & 0b11000000) != 0b10000000:
-                return False
             skip -= 1
             continue
-
-        # Multi-byte character handling
-        num_bytes_expected = 0
-        if (byte >> 7) == 0b0:  # 1-byte handled earlier
-            continue
-        elif (byte >> 5) == 0b110:
-            num_bytes_expected = 1
-        elif (byte >> 4) == 0b1110:
-            num_bytes_expected = 2
-        elif (byte >> 3) == 0b11110:
-            num_bytes_expected = 3
-        else:
-            return False  # Invalid first byte
-
-        # Check if enough bytes are remaining
-        if len(data) - byte.bit_length() < (num_bytes_expected + 1):
+        if type(data[i]) != int or data[i] < 0 or data[i] > 0x10ffff:
             return False
-
-        # Validate continuation bytes using bitwise AND
-        for i in range(1, num_bytes_expected + 1):
-            if (data[byte.bit_length() + i] & 0b11000000) != 0b10000000:
+        elif data[i] <= 0x7f:
+            skip = 0
+        elif data[i] & 0b11111000 == 0b11110000:
+            # 4-byte utf-8 character encoding
+            span = 4
+            if n - i >= span:
+                next_body = list(map(
+                    lambda x: x & 0b11000000 == 0b10000000,
+                    data[i + 1: i + span],
+                ))
+                if not all(next_body):
+                    return False
+                skip = span - 1
+            else:
                 return False
-        skip = num_bytes_expected
-
-    return skip == 0  # No continuation bytes remaining
+        elif data[i] & 0b11110000 == 0b11100000:
+            # 3-byte utf-8 character encoding
+            span = 3
+            if n - i >= span:
+                next_body = list(map(
+                    lambda x: x & 0b11000000 == 0b10000000,
+                    data[i + 1: i + span],
+                ))
+                if not all(next_body):
+                    return False
+                skip = span - 1
+            else:
+                return False
+        elif data[i] & 0b11100000 == 0b11000000:
+            # 2-byte utf-8 character encoding
+            span = 2
+            if n - i >= span:
+                next_body = list(map(
+                    lambda x: x & 0b11000000 == 0b10000000,
+                    data[i + 1: i + span],
+                ))
+                if not all(next_body):
+                    return False
+                skip = span - 1
+            else:
+                return False
+        else:
+            return False
+    return True
