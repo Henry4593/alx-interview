@@ -1,21 +1,19 @@
 #!/usr/bin/python3
 """utf-8 validation module"""
-from typing import List
 
 
-def validUTF8(data: List[int]) -> bool:
+def validUTF8(data):
     """
-    Args:
-        data (List[int]): List of integers representing bytes.
-    Returns:
-        bool: True if the data is valid UTF-8, False otherwise.
+        Args:
+            data (list): List of integers representing bytes.
+        Returns:
+            bool: True if the data is valid UTF-8, False otherwise.
     """
-    num_bytes_expected: int = 0  # Number of bytes expected for the curr char
+    num_bytes_expected = 0  # Number of bytes expected for the current char
 
     for byte in data:
-        if byte < 0 or byte > 255:
-            return False  # Each integer should be a valid byte (0-255)
-
+        """Check the number of leading 1s to determine how many bytes
+        are expected"""
         if num_bytes_expected == 0:
             if (byte >> 7) == 0b0:  # 1-byte character (0xxxxxxx)
                 continue
